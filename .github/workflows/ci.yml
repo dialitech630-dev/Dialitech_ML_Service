@@ -22,8 +22,13 @@ jobs:
         run: |
           pip install -r requirements-dev.txt
 
-      - name: Format check
-        run: black --check .
+      - name: Black debug
+        run: |
+          python --version
+          black --version
+          pwd
+          git rev-parse HEAD
+          black --check --verbose .
 
       - name: Import order check
         run: isort --check-only .
