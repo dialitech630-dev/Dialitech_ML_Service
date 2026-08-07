@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: dialitech-ml-service
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: API_KEY
+        sync: false
+      - key: MODEL_VERSION
+        value: risk_model_v1
+      - key: LOG_LEVEL
+        value: INFO
+      - key: RISK_THRESHOLD_HIGH
+        value: "0.7"
+      - key: RISK_THRESHOLD_MEDIUM
+        value: "0.4"
