@@ -36,9 +36,7 @@ async def insufficient_readings_handler(
     )
 
 
-async def model_not_loaded_handler(
-    request: Request, exc: Exception
-) -> JSONResponse:
+async def model_not_loaded_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
         status_code=503,
         content={"detail": "ML model is not available"},
