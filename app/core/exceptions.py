@@ -42,9 +42,7 @@ async def model_not_loaded_handler(
     )
 
 
-async def analysis_error_handler(
-    request: Request, exc: AnalysisError
-) -> JSONResponse:
+async def analysis_error_handler(request: Request, exc: AnalysisError) -> JSONResponse:
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal analysis error"},

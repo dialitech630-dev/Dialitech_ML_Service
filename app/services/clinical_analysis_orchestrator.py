@@ -43,16 +43,12 @@ class ClinicalAnalysisOrchestrator:
 
         risk_result, hr_trend, o2_trend, act_trend, pattern_result, anomaly_result = (
             await asyncio.gather(
-                asyncio.to_thread(
-                    self._risk_predictor.predict, features, patient_id
-                ),
+                asyncio.to_thread(self._risk_predictor.predict, features, patient_id),
                 asyncio.to_thread(self._trend_analyzer.analyze, heart_rates),
                 asyncio.to_thread(self._trend_analyzer.analyze, oxygens),
                 asyncio.to_thread(self._trend_analyzer.analyze, activities),
                 asyncio.to_thread(self._pattern_detector.detect, heart_rates),
-                asyncio.to_thread(
-                    self._anomaly_detector.detect, readings_matrix
-                ),
+                asyncio.to_thread(self._anomaly_detector.detect, readings_matrix),
                 return_exceptions=True,
             )
         )
@@ -73,35 +69,53 @@ class ClinicalAnalysisOrchestrator:
                 results[name] = result
 
         return {
-            "riskPrediction": results.get("risk", {
-                "riskScore": 0.0,
-                "riskLevel": "LOW",
-                "recommendation": "Analysis unavailable",
-            }),
+            "riskPrediction": results.get(
+                "risk",
+                {
+                    "riskScore": 0.0,
+                    "riskLevel": "LOW",
+                    "recommendation": "Analysis unavailable",
+                },
+            ),
             "trendAnalysis": {
-                "heartRate": results.get("hr_trend", {
-                    "direction": "STABLE",
-                    "slope": 0.0,
-                    "confidence": 0.0,
-                }),
-                "oxygen": results.get("o2_trend", {
-                    "direction": "STABLE",
-                    "slope": 0.0,
-                    "confidence": 0.0,
-                }),
-                "activity": results.get("act_trend", {
-                    "direction": "STABLE",
-                    "slope": 0.0,
-                    "confidence": 0.0,
-                }),
+                "heartRate": results.get(
+                    "hr_trend",
+                    {
+                        "direction": "STABLE",
+                        "slope": 0.0,
+                        "confidence": 0.0,
+                    },
+                ),
+                "oxygen": results.get(
+                    "o2_trend",
+                    {
+                        "direction": "STABLE",
+                        "slope": 0.0,
+                        "confidence": 0.0,
+                    },
+                ),
+                "activity": results.get(
+                    "act_trend",
+                    {
+                        "direction": "STABLE",
+                        "slope": 0.0,
+                        "confidence": 0.0,
+                    },
+                ),
             },
-            "patternDetection": results.get("pattern", {
-                "patternsFound": False,
-                "patterns": [],
-            }),
-            "anomalyDetection": results.get("anomaly", {
-                "anomalyDetected": False,
-                "anomalyScore": 0.0,
-                "affectedReadingsIndexes": [],
-            }),
+            "patternDetection": results.get(
+                "pattern",
+                {
+                    "patternsFound": False,
+                    "patterns": [],
+                },
+            ),
+            "anomalyDetection": results.get(
+                "anomaly",
+                {
+                    "anomalyDetected": False,
+                    "anomalyScore": 0.0,
+                    "affectedReadingsIndexes": [],
+                },
+            ),
         }

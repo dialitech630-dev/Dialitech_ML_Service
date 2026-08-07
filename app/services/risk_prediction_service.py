@@ -21,14 +21,10 @@ class RiskPredictionService:
 
         if score >= settings.RISK_THRESHOLD_HIGH:
             level = "HIGH"
-            recommendation = (
-                "High risk detected. Consider immediate clinical review."
-            )
+            recommendation = "High risk detected. Consider immediate clinical review."
         elif score >= settings.RISK_THRESHOLD_MEDIUM:
             level = "MEDIUM"
-            recommendation = (
-                "Moderate risk. Schedule follow-up within 24 hours."
-            )
+            recommendation = "Moderate risk. Schedule follow-up within 24 hours."
         else:
             level = "LOW"
             recommendation = "Risk within acceptable range."

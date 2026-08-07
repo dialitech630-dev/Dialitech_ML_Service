@@ -43,16 +43,18 @@ def build_feature_vector(
     if len(heart_rates) < window:
         raise ValueError(f"Need at least {window} readings, got {len(heart_rates)}")
 
-    features = np.array([
-        np.mean(heart_rates[-window:]),
-        np.std(heart_rates[-window:]),
-        compute_slope(heart_rates[-window:]),
-        np.mean(oxygens[-window:]),
-        np.std(oxygens[-window:]),
-        compute_slope(oxygens[-window:]),
-        np.mean(activities[-window:]),
-        np.std(activities[-window:]),
-        compute_slope(activities[-window:]),
-    ])
+    features = np.array(
+        [
+            np.mean(heart_rates[-window:]),
+            np.std(heart_rates[-window:]),
+            compute_slope(heart_rates[-window:]),
+            np.mean(oxygens[-window:]),
+            np.std(oxygens[-window:]),
+            compute_slope(oxygens[-window:]),
+            np.mean(activities[-window:]),
+            np.std(activities[-window:]),
+            compute_slope(activities[-window:]),
+        ]
+    )
 
     return features

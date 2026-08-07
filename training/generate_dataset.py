@@ -19,9 +19,7 @@ def generate_synthetic_dataset(
         risk_label = rng.choice([0, 1], p=[0.7, 0.3])
 
         hr_trend = rng.uniform(-2, 2) if risk_label == 0 else rng.uniform(1, 5)
-        o2_trend = (
-            rng.uniform(-0.5, 0.5) if risk_label == 0 else rng.uniform(-2, -0.5)
-        )
+        o2_trend = rng.uniform(-0.5, 0.5) if risk_label == 0 else rng.uniform(-2, -0.5)
         act_trend = rng.uniform(-1, 1) if risk_label == 0 else rng.uniform(-5, -1)
 
         for i in range(readings_per_patient):
@@ -29,9 +27,7 @@ def generate_synthetic_dataset(
             o2 = base_o2 + o2_trend * i / readings_per_patient + rng.normal(0, 0.5)
             act = max(
                 0,
-                base_activity
-                + act_trend * i / readings_per_patient
-                + rng.normal(0, 5),
+                base_activity + act_trend * i / readings_per_patient + rng.normal(0, 5),
             )
             rows.append(
                 {

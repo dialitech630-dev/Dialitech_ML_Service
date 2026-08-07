@@ -15,12 +15,14 @@ class TestAnalyzeEndpoint:
         rng = np.random.default_rng(42)
         readings = []
         for _ in range(15):
-            readings.append({
-                "heartRate": round(float(rng.uniform(60, 100)), 1),
-                "oxygen": round(float(rng.uniform(94, 99)), 1),
-                "activity": round(float(rng.uniform(20, 80)), 1),
-                "timestamp": "2026-08-06T10:00:00Z",
-            })
+            readings.append(
+                {
+                    "heartRate": round(float(rng.uniform(60, 100)), 1),
+                    "oxygen": round(float(rng.uniform(94, 99)), 1),
+                    "activity": round(float(rng.uniform(20, 80)), 1),
+                    "timestamp": "2026-08-06T10:00:00Z",
+                }
+            )
 
         response = client.post(
             "/api/v1/analyze",
