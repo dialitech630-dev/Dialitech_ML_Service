@@ -7,12 +7,12 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
-async def health_check() -> dict:
+async def health_check() -> dict[str, object]:
     return {"status": "healthy"}
 
 
 @router.get("/health/ready", response_model=None)
-async def readiness_check():
+async def readiness_check() -> dict[str, object] | JSONResponse:
     loader = get_model_loader()
     if not loader.is_loaded:
         return JSONResponse(

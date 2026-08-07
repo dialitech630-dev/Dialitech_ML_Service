@@ -46,11 +46,19 @@ ignore = ["E501", "E402", "N815", "B008"]
 known-first-party = ["app"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.14"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["joblib.*", "sklearn.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["numpy.*"]
+ignore_missing_imports = true
 
 [tool.black]
 target-version = ["py311"]

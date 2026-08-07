@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/v1", tags=["model"])
 @router.get("/model-info")
 async def model_info(
     _api_key: str = Depends(verify_api_key),
-) -> dict:
+) -> dict[str, object]:
     loader = get_model_loader()
     return {
         "version": loader.version,

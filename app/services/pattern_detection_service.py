@@ -41,4 +41,4 @@ class PatternDetectionService:
         if len(values) < 4:
             return False
         cv = np.std(values) / (np.mean(values) + 1e-10)
-        return cv > 0.3
+        return bool(cv > 0.3)

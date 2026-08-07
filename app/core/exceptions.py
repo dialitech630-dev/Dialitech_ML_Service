@@ -1,3 +1,5 @@
+from collections.abc import Awaitable, Callable
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -23,8 +25,9 @@ class AnalysisError(Exception):
 
 
 async def insufficient_readings_handler(
-    request: Request, exc: InsufficientReadingsError
+    request: Request, exc: Exception
 ) -> JSONResponse:
+    assert isinstance(exc, InsufficientReadingsError)
     return JSONResponse(
         status_code=400,
         content={
@@ -34,7 +37,7 @@ async def insufficient_readings_handler(
 
 
 async def model_not_loaded_handler(
-    request: Request, exc: ModelNotLoadedError
+    request: Request, exc: Exception
 ) -> JSONResponse:
     return JSONResponse(
         status_code=503,
@@ -42,14 +45,16 @@ async def model_not_loaded_handler(
     )
 
 
-async def analysis_error_handler(request: Request, exc: AnalysisError) -> JSONResponse:
+async def analysis_error_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal analysis error"},
     )
 
 
-EXCEPTION_HANDLERS = {
+ExceptionHandler = Callable[[Request, Exception], Awaitable[JSONResponse]]
+
+EXCEPTION_HANDLERS: dict[type[Exception], ExceptionHandler] = {
     InsufficientReadingsError: insufficient_readings_handler,
     ModelNotLoadedError: model_not_loaded_handler,
     AnalysisError: analysis_error_handler,

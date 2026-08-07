@@ -8,6 +8,7 @@ from app.core.exceptions import InsufficientReadingsError
 from app.core.security import verify_api_key
 from app.ml.model_loader import get_model_loader
 from app.schemas.analyze_request import AnalyzeRequest
+from app.services.clinical_analysis_orchestrator import ClinicalAnalysisOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +19,8 @@ router = APIRouter(prefix="/api/v1", tags=["analysis"])
 async def analyze(
     request: AnalyzeRequest,
     _api_key: str = Depends(verify_api_key),
-    orchestrator=Depends(get_orchestrator),
-) -> dict:
+    orchestrator: ClinicalAnalysisOrchestrator = Depends(get_orchestrator),
+) -> dict[str, object]:
     loader = get_model_loader()
     window_size = request.windowSize or 12
 
