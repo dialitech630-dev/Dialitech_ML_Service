@@ -27,7 +27,8 @@ class AnalysisError(Exception):
 async def insufficient_readings_handler(
     request: Request, exc: Exception
 ) -> JSONResponse:
-    assert isinstance(exc, InsufficientReadingsError)
+    if not isinstance(exc, InsufficientReadingsError):
+        raise TypeError(f"Expected InsufficientReadingsError, got {type(exc).__name__}")
     return JSONResponse(
         status_code=400,
         content={
