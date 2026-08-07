@@ -1,7 +1,9 @@
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
+from app.core.exceptions import ModelNotLoadedError
 from app.services.risk_prediction_service import RiskPredictionService
 
 
@@ -44,14 +46,9 @@ class TestRiskPredictionService:
 
     @patch("app.services.risk_prediction_service.get_model_loader")
     def test_predict_model_not_loaded(self, mock_get_loader) -> None:
-        from app.core.exceptions import ModelNotLoadedError
-
         mock_loader = mock_get_loader.return_value
         mock_loader.is_loaded = False
 
         features = np.array([75.0, 5.0, 0.5, 96.0, 1.0, -0.1, 40.0, 10.0, -1.0])
-        try:
+        with pytest.raises(ModelNotLoadedError):
             self.service.predict(features, "test-patient")
-            assert False, "Should have raised ModelNotLoadedError"
-        except ModelNotLoadedError:
-            pass

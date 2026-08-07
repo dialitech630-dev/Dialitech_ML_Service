@@ -11,7 +11,7 @@ def generate_synthetic_dataset(
     rng = np.random.default_rng(seed)
     rows = []
 
-    for patient_id in range(n_patients):
+    for _patient_id in range(n_patients):
         base_hr = rng.uniform(60, 100)
         base_o2 = rng.uniform(94, 99)
         base_activity = rng.uniform(20, 80)

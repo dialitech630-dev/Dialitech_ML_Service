@@ -41,11 +41,11 @@ def train(
         features_list.append(feat)
         labels.append(label)
 
-    X = np.array(features_list)
+    x = np.array(features_list)
     y = np.array(labels)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+    x_train, x_test, y_train, y_test = train_test_split(
+        x, y, test_size=0.2, random_state=42, stratify=y
     )
 
     model = RandomForestClassifier(
@@ -54,10 +54,10 @@ def train(
         min_samples_split=5,
         random_state=42,
     )
-    model.fit(X_train, y_train)
+    model.fit(x_train, y_train)
 
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]
+    y_pred = model.predict(x_test)
+    y_proba = model.predict_proba(x_test)[:, 1]
 
     roc_auc = roc_auc_score(y_test, y_proba)
     precision = precision_score(y_test, y_pred, zero_division=0)

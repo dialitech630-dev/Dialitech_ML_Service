@@ -31,11 +31,11 @@ def evaluate(
         features_list.append(feat)
         labels.append(label)
 
-    X = np.array(features_list)
+    x = np.array(features_list)
     y = np.array(labels)
 
-    y_pred = model.predict(X)
-    y_proba = model.predict_proba(X)[:, 1]
+    y_pred = model.predict(x)
+    y_proba = model.predict_proba(x)[:, 1]
 
     print("Evaluation Results:")
     print(f"ROC AUC: {roc_auc_score(y, y_proba):.4f}")
