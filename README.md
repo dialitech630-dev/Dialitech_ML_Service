@@ -120,7 +120,7 @@ pip install -r requirements.txt
 Crea un archivo `.env`:
 
 ```env
-API_KEY=REPLACED_API_KEY
+API_KEY=your-secret-api-key-here
 MODEL_VERSION=risk_model_v1
 LOG_LEVEL=INFO
 WINDOW_SIZE_DEFAULT=12
@@ -160,11 +160,14 @@ Swagger UI: `http://localhost:8000/docs`
 docker build -t dialitech-ml-service .
 
 # Run
-docker run -p 8000:8000 -e API_KEY=REPLACED_API_KEY dialitech-ml-service
+docker run -p 8000:8000 -e API_KEY=your-secret-api-key-here dialitech-ml-service
 ```
 
-## Despliegue en Railway
+## Despliegue
 
+El servicio está preparado para desplegarse en **Railway** o **Render**:
+
+### Railway
 1. Conecta el repo en Railway
 2. Railway detecta el Dockerfile automáticamente
 3. Agrega las variables de entorno en el dashboard:
@@ -172,25 +175,44 @@ docker run -p 8000:8000 -e API_KEY=REPLACED_API_KEY dialitech-ml-service
    - `MODEL_VERSION` — `risk_model_v1`
 4. Railway asigna el puerto vía `$PORT` (el Dockerfile lo maneja)
 
+### Render
+El archivo `render.yaml` configura el despliegue automático:
+- Docker runtime en plan free
+- Health check en `/health`
+- Variables de entorno predefinidas
+
 ## Estructura del proyecto
 
 ```
 dialitech-ml-service/
 ├── app/                          # Código de producción
 │   ├── api/v1/routes/            # Endpoints (analyze, health, model_info)
-│   ├── core/                     # Config, exceptions, logging, security
+│   ├── core/                     # Config, exceptions, logging, security, rate_limit, security_headers
 │   ├── ml/                       # Model loader, feature engineering, model registry
 │   ├── schemas/                  # Pydantic models (request/response)
-│   └── services/                 # Business logic (risk, trends, patterns, anomalies, orchestrator)
+│   ├── services/                 # Business logic (risk, trends, patterns, anomalies, orchestrator)
+│   └── utils/                    # Utilidades (time_windows)
 ├── training/                     # Scripts offline (nunca se importa en producción)
 │   ├── generate_dataset.py
 │   ├── train_risk_model.py
 │   └── evaluate_model.py
 ├── tests/                        # Tests unitarios y de integración
+│   ├── unit/
+│   ├── integration/
+│   └── conftest.py
+├── .github/workflows/ci.yml      # Pipeline CI (lint, type-check, SAST, tests, coverage)
+├── .github/dependabot.yml        # Actualizaciones automáticas de dependencias
+├── .pre-commit-config.yaml       # Hooks locales (lint, format, bandit, detect-secrets)
+├── .secrets.baseline             # Baseline de detect-secrets (secretos auditados)
+├── .semgrep.yml                  # Reglas SAST (Semgrep)
 ├── Dockerfile
+├── docker-compose.yml
+├── render.yaml                   # Configuración Render
 ├── requirements.txt
+├── requirements-dev.txt
 ├── pyproject.toml
-└── .env.example
+├── .env.example
+└── README.md
 ```
 
 ## Tecnologías
@@ -201,6 +223,55 @@ dialitech-ml-service/
 - **uvicorn** — ASGI server
 - **joblib** — serialización del modelo
 - **Docker** — contenedorización
+
+## Tests
+
+```bash
+# Instalar dependencias de desarrollo
+pip install -r requirements-dev.txt
+
+# Ejecutar todos los tests
+pytest
+
+# Solo tests unitarios
+pytest tests/unit/
+
+# Solo tests de integración
+pytest tests/integration/
+
+# Con cobertura
+pytest --cov=app --cov-report=term-missing
+```
+
+Cobertura actual: **95%**
+
+## Seguridad
+
+- **Autenticación**: API Key via header `X-API-Key` (comparación constant-time con `hmac.compare_digest`). La clave **no tiene valor por defecto** y debe inyectarse vía entorno (`API_KEY` obligatoria).
+- **Rate limiting**: 60 req/min por IP (middleware en memoria)
+- **Security headers**: X-Content-Type-Options, X-Frame-Options, Content-Security-Policy, Permissions-Policy, Referrer-Policy
+- **CORS**: Restringido a origen específico (`https://dialitech.netlify.app`)
+- **Validación de entrada**: Límites en `windowSize` (1-1000) y `readings` (1-10000)
+- **Contenedor**: Usuario no-root (UID 1000)
+
+### DevSecOps (CI en GitHub Actions)
+
+| Herramienta | Función |
+|-------------|---------|
+| Ruff + Black + isort | Lint, formato e imports |
+| mypy (strict) | Type checking |
+| Bandit | SAST de código Python |
+| Semgrep | SAST adicional (reglas en `.semgrep.yml`) |
+| Gitleaks | Detección de secretos en el repo (CI) |
+| detect-secrets | Detección de secretos en pre-commit (local) |
+| pip-audit | Auditoría de vulnerabilidades en dependencias |
+| Trivy | Escaneo de vulnerabilidades de la imagen Docker |
+| anchore/sbom-action | Generación de SBOM |
+| Dependabot | Actualizaciones automáticas de dependencias |
+| pre-commit | Hooks locales (`.pre-commit-config.yaml`) |
+| pytest + pytest-cov | 129 tests, umbral de cobertura 70% |
+
+> **Nota sobre numpy**: CI y Docker usan Python 3.11 (`numpy<2.3`). En entornos locales con Python 3.14 se instala `numpy>=2.5` automáticamente vía markers de entorno.
 
 ## License
 

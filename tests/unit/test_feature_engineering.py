@@ -9,6 +9,8 @@ from app.ml.feature_engineering import (
     compute_slope,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestComputeRollingMean:
     def test_basic(self) -> None:
