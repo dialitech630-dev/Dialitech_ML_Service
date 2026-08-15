@@ -82,7 +82,7 @@ jobs:
         run: docker build -t dialitech-ml-service .
 
       - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: dialitech-ml-service
           severity: CRITICAL,HIGH
