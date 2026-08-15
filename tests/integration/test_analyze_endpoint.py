@@ -37,7 +37,7 @@ class TestAnalyzeEndpointValidRequests:
                 "windowSize": 12,
                 "readings": valid_readings,
             },
-            headers={"X-API-Key": "REPLACED_API_KEY"},
+            headers={"X-API-Key": "test-key"},
         )
 
         assert response.status_code == 200
@@ -163,7 +163,7 @@ class TestAnalyzeEndpointErrors:
                 "windowSize": 12,
                 "readings": readings,
             },
-            headers={"X-API-Key": "REPLACED_API_KEY"},
+            headers={"X-API-Key": "test-key"},
         )
 
         assert response.status_code == 400
