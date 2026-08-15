@@ -26,7 +26,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -62,7 +62,7 @@ jobs:
       - name: SAST with Semgrep
         run: |
           pip install semgrep
-          semgrep scan --config .semgrep.yml --exclude-rule python-hardcoded-secret --error app/
+          semgrep scan --config .semgrep.yml --error app/
 
       - name: Dependency audit
         run: pip-audit
