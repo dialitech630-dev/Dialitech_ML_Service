@@ -40,13 +40,15 @@ rules:
     severity: WARNING
     languages:
       - python
-    pattern-either:
-      - pattern: |
-          $VAR = $VALUE
-      - pattern: |
-          $VAR: str = $VALUE
-    metavariable-regex:
-      - metavariable: $VAR
-        regex: (?i).*(api[_-]?key|secret|passwd|token|credential).*
-      - metavariable: $VALUE
-        regex: (?m)["'][^"']+["']
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $VAR = $VALUE
+          - pattern: |
+              $VAR: str = $VALUE
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: (?i).*(api[_-]?key|secret|passwd|password|token|credential).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: (?m)["'][^"']+["']
