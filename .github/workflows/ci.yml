@@ -26,7 +26,6 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ARGS: "detect --verbose --redact --exclude-path=.secrets.baseline"
           
       - name: Set up Python
         uses: actions/setup-python@v5
