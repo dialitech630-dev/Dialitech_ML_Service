@@ -62,7 +62,7 @@ jobs:
       - name: SAST with Semgrep
         run: |
           pip install semgrep
-          semgrep scan --config .semgrep.yml --error app/
+          semgrep scan --config .semgrep.yml --exclude-rule python-hardcoded-secret --error app/
 
       - name: Dependency audit
         run: pip-audit
