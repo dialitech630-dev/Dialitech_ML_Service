@@ -1,0 +1,54 @@
+rules:
+  - id: python-no-eval-exec
+    message: Do not use eval() or exec(). They allow arbitrary code execution.
+    severity: ERROR
+    languages:
+      - python
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: exec($X)
+          - pattern: compile($X)
+
+  - id: python-no-subprocess-shell
+    message: Avoid subprocess with shell=True. It is vulnerable to shell injection.
+    severity: ERROR
+    languages:
+      - python
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.call(..., shell=True)
+          - pattern: subprocess.check_call(..., shell=True)
+          - pattern: subprocess.check_output(..., shell=True)
+          - pattern: subprocess.Popen(..., shell=True)
+          - pattern: subprocess.run(..., shell=True)
+          - pattern: os.system(...)
+          - pattern: os.popen(...)
+
+  - id: python-no-debug-mode
+    message: Do not enable debug mode in production code.
+    severity: ERROR
+    languages:
+      - python
+    patterns:
+      - pattern-either:
+          - pattern: debug=True
+          - pattern: $APP.run(..., debug=True)
+
+  - id: python-hardcoded-secret
+    message: Potential hardcoded secret detected. Secrets must come from environment variables.
+    severity: WARNING
+    languages:
+      - python
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $VAR = $VALUE
+          - pattern: |
+              $VAR: str = $VALUE
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: (?i).*(api[_-]?key|secret|passwd|password|token|credential).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: (?m)["'][^"']+["']

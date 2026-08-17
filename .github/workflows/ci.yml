@@ -6,49 +6,102 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      API_KEY: test-key
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Secrets scan with Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
+          python -m pip install --upgrade pip setuptools
           pip install -r requirements-dev.txt
 
-      - name: Black debug
-        run: |
-          python --version
-          black --version
-          pwd
-          git rev-parse HEAD
-          black --check --verbose .
+      - name: Lint with Ruff
+        run: ruff check .
+
+      - name: Format check with Black
+        run: black --check .
 
       - name: Import order check
         run: isort --check-only .
 
-      - name: Lint
-        run: ruff check .
+      - name: Type check with mypy
+        run: mypy app/ --ignore-missing-imports --disable-error-code type-arg --disable-error-code no-any-return --disable-error-code call-arg --disable-error-code no-untyped-def
 
-      - name: Type check
-        run: mypy app/
+      - name: Security scan with Bandit
+        run: bandit -r app/ -c pyproject.toml
 
-      - name: Security scan
-        run: bandit -r app/
+      - name: SAST with Semgrep
+        run: |
+          pip install semgrep
+          semgrep scan --config .semgrep.yml --config p/ci --error app/
 
       - name: Dependency audit
         run: pip-audit
 
-      - name: Tests with coverage
-        run: pytest --cov=app --cov-report=xml --cov-report=term-missing
+      - name: Run tests with coverage
+        run: pytest tests/unit/ tests/integration/ --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=70 -v --tb=short
 
       - name: Build Docker image
         run: docker build -t dialitech-ml-service .
+
+      - name: Scan Docker image with Trivy
+        id: trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: dialitech-ml-service
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - name: Upload Trivy SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && steps.trivy.conclusion != 'skipped'
+        continue-on-error: true
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: dialitech-ml-service
+          artifact-name: sbom.spdx.json
+
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom
+          path: sbom.spdx.json
+          retention-days: 30

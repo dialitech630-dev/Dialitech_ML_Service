@@ -41,16 +41,21 @@ class ClinicalAnalysisOrchestrator:
 
         readings_matrix = np.column_stack([heart_rates, oxygens, activities])
 
-        risk_result, hr_trend, o2_trend, act_trend, pattern_result, anomaly_result = (
-            await asyncio.gather(
-                asyncio.to_thread(self._risk_predictor.predict, features, patient_id),
-                asyncio.to_thread(self._trend_analyzer.analyze, heart_rates),
-                asyncio.to_thread(self._trend_analyzer.analyze, oxygens),
-                asyncio.to_thread(self._trend_analyzer.analyze, activities),
-                asyncio.to_thread(self._pattern_detector.detect, heart_rates),
-                asyncio.to_thread(self._anomaly_detector.detect, readings_matrix),
-                return_exceptions=True,
-            )
+        (
+            risk_result,
+            hr_trend,
+            o2_trend,
+            act_trend,
+            pattern_result,
+            anomaly_result,
+        ) = await asyncio.gather(
+            asyncio.to_thread(self._risk_predictor.predict, features, patient_id),
+            asyncio.to_thread(self._trend_analyzer.analyze, heart_rates),
+            asyncio.to_thread(self._trend_analyzer.analyze, oxygens),
+            asyncio.to_thread(self._trend_analyzer.analyze, activities),
+            asyncio.to_thread(self._pattern_detector.detect, heart_rates),
+            asyncio.to_thread(self._anomaly_detector.detect, readings_matrix),
+            return_exceptions=True,
         )
 
         results: dict[str, object] = {}

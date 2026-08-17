@@ -3,6 +3,8 @@ import pytest
 
 from app.services.clinical_analysis_orchestrator import ClinicalAnalysisOrchestrator
 
+pytestmark = pytest.mark.unit
+
 
 class TestClinicalAnalysisOrchestrator:
     def setup_method(self) -> None:

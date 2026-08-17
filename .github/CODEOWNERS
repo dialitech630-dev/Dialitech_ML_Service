@@ -1,0 +1,20 @@
+# Dialitech ML Service - CODEOWNERS
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+* @dialitech630-dev
+
+# Infrastructure and CI/CD
+Dockerfile @dialitech630-dev
+docker-compose.yml @dialitech630-dev
+render.yaml @dialitech630-dev
+.github/workflows/ @dialitech630-dev
+.github/dependabot.yml @dialitech630-dev
+.semgrep.yml @dialitech630-dev
+.pre-commit-config.yaml @dialitech630-dev
+
+# Core security and config
+app/core/security.py @dialitech630-dev
+app/core/config.py @dialitech630-dev
+app/core/security_headers.py @dialitech630-dev
+app/core/rate_limit.py @dialitech630-dev

@@ -1,5 +1,9 @@
+import os
+
 import numpy as np
 import pytest
+
+os.environ.setdefault("API_KEY", "test-key")
 
 
 @pytest.fixture
