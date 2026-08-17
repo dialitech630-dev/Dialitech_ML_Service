@@ -70,6 +70,7 @@ jobs:
         run: docker build -t dialitech-ml-service .
 
       - name: Scan Docker image with Trivy
+        id: trivy
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: dialitech-ml-service
@@ -81,7 +82,8 @@ jobs:
 
       - name: Upload Trivy SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && steps.trivy.conclusion != 'skipped'
+        continue-on-error: true
         with:
           sarif_file: trivy-results.sarif
 
