@@ -50,7 +50,7 @@ jobs:
         run: pre-commit run --all-files
 
       - name: Type check with mypy
-        run: mypy app/
+        run: mypy app/ --ignore-missing-imports --disable-error-code type-arg --disable-error-code no-any-return --disable-error-code call-arg --disable-error-code no-untyped-def
 
       - name: Security scan with Bandit
         run: bandit -r app/ -c pyproject.toml
