@@ -201,9 +201,10 @@ dialitech-ml-service/
 │   ├── integration/
 │   └── conftest.py
 ├── .github/workflows/ci.yml      # Pipeline CI (lint, type-check, SAST, tests, coverage)
+├── .github/CODEOWNERS            # Routing de reviewers para archivos críticos
 ├── .github/dependabot.yml        # Actualizaciones automáticas de dependencias
-├── .pre-commit-config.yaml       # Hooks locales (lint, format, bandit, detect-secrets)
-├── .secrets.baseline             # Baseline de detect-secrets (secretos auditados)
+├── .pre-commit-config.yaml       # Hooks locales (lint, format, bandit)
+├── .gitleaksignore               # Falsos positivos de Gitleaks
 ├── .semgrep.yml                  # Reglas SAST (Semgrep)
 ├── Dockerfile
 ├── docker-compose.yml
@@ -256,20 +257,25 @@ Cobertura actual: **95%**
 
 ### DevSecOps (CI en GitHub Actions)
 
-| Herramienta | Función |
-|-------------|---------|
-| Ruff + Black + isort | Lint, formato e imports |
-| mypy (strict) | Type checking |
-| Bandit | SAST de código Python |
-| Semgrep | SAST adicional (reglas en `.semgrep.yml`) |
-| Gitleaks | Detección de secretos en el repo (CI) |
-| detect-secrets | Detección de secretos en pre-commit (local) |
-| pip-audit | Auditoría de vulnerabilidades en dependencias |
-| Trivy | Escaneo de vulnerabilidades de la imagen Docker |
-| anchore/sbom-action | Generación de SBOM |
-| Dependabot | Actualizaciones automáticas de dependencias |
-| pre-commit | Hooks locales (`.pre-commit-config.yaml`) |
-| pytest + pytest-cov | 129 tests, umbral de cobertura 70% |
+| Herramienta | Función | Reporte |
+|-------------|---------|---------|
+| Gitleaks | Detección de secretos (full history) | CI step |
+| pre-commit | Lint, formato, imports, bandit (local = CI) | CI step |
+| mypy (strict) | Type checking (config en `pyproject.toml`) | CI step |
+| Bandit | SAST de código Python | CI step |
+| Semgrep | SAST + reglas custom (`.semgrep.yml` + `p/ci`) | CI step |
+| pip-audit | Auditoría de vulnerabilidades en dependencias | CI step |
+| Trivy | Escaneo de vulnerabilidades de la imagen Docker | Security tab (SARIF) |
+| anchore/sbom-action | Generación de SBOM | Artifact (30 días) |
+| Dependabot | Actualizaciones automáticas de dependencias | PR automático |
+| pytest + pytest-cov | Tests unitarios + integración, umbral 70% | CI step |
+
+**Branch protection** (configurada en GitHub Settings → Branches):
+- PR requerido para merge a `main`
+- 1 approval mínimo
+- Status check `build` requerido
+- Stale approvals deshabilitados
+- Force push bloqueado
 
 > **Nota sobre numpy**: CI y Docker usan Python 3.11 (`numpy<2.3`). En entornos locales con Python 3.14 se instala `numpy>=2.5` automáticamente vía markers de entorno.
 
